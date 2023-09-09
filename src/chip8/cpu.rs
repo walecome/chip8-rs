@@ -115,6 +115,22 @@ impl Cpu {
                 register_y: get_nibble_from_right(1, raw),
                 n: get_nibble_from_right(0, raw),
             },
+            0x3000..=0x3FFF => Instruction::NoopImmediateEq {
+                register: get_nibble_from_right(2, raw),
+                value: (raw & 0x00FF) as u8,
+            },
+            0x4000..=0x4FFF => Instruction::NoopImmediateNotEq {
+                register: get_nibble_from_right(2, raw),
+                value: (raw & 0x00FF) as u8,
+            },
+            0x5000..=0x5FF0 => Instruction::NoopRegisterEq {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x9000..=0x9FF0 => Instruction::NoopRegisterNotEq {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
             _ => panic!("Unknown instruction: {:#06X}", raw),
         }
     }
@@ -186,6 +202,26 @@ impl Cpu {
                     x = start_x;
                 }
             },
+            Instruction::NoopImmediateEq { register, value } => {
+                if self.get_register(register) == value {
+                    self.do_noop();
+                }
+            },
+            Instruction::NoopImmediateNotEq { register, value } => {
+                if self.get_register(register) != value {
+                    self.do_noop();
+                }
+            },
+            Instruction::NoopRegisterEq { register_x, register_y } => {
+                if self.get_register(register_x) == self.get_register(register_y) {
+                    self.do_noop();
+                }
+            },
+            Instruction::NoopRegisterNotEq { register_x, register_y } => {
+                if self.get_register(register_x) != self.get_register(register_y) {
+                    self.do_noop();
+                }
+            },
         }
     }
 
@@ -199,6 +235,10 @@ impl Cpu {
 
     fn pc_as_index(&self) -> usize {
         self.pc as usize
+    }
+
+    fn do_noop(& mut self) {
+        self.pc += 2;
     }
 }
 

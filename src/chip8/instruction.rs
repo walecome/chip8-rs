@@ -8,4 +8,9 @@ pub enum Instruction {
     AddVX { register: u8, value: u8 },
     SetI(u16),
     DisplayDraw { register_x: u8, register_y: u8, n: u8 },
+    NoopImmediateEq { register: u8, value: u8 },
+    NoopImmediateNotEq { register: u8, value: u8 },
+    NoopRegisterEq { register_x: u8, register_y: u8 },
+    NoopRegisterNotEq { register_x: u8, register_y: u8},
+
 }
