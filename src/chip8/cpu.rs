@@ -59,6 +59,11 @@ pub struct Cpu {
     vram: VRAM,
 }
 
+fn get_nibble_from_right(i: u8, value: u16) -> u8 {
+    let shift = 4 * i;
+    return ((value >> shift) & 0x000F) as u8;
+}
+
 impl Cpu {
     pub fn new(memory: Memory) -> Cpu {
         return Cpu {
@@ -93,18 +98,18 @@ impl Cpu {
             0x1000..=0x1FFF => Instruction::Jump(raw & 0x0FFF),
             0x2000..=0x2FFF => Instruction::SubroutineCall(raw & 0x0FFF),
             0x6000..=0x6FFF => Instruction::SetVX {
-                register: (raw & 0x0F00) as u8,
+                register: get_nibble_from_right(2, raw),
                 value: (raw & 0x00FF) as u8,
             },
             0x7000..=0x7FFF => Instruction::AddVX {
-                register: (raw & 0x0F00) as u8,
+                register: get_nibble_from_right(2, raw),
                 value: (raw & 0x00FF) as u8,
             },
             0xA000..=0xAFFF => Instruction::SetI(raw & 0x0FFF),
             0xD000..=0xDFFF => Instruction::DisplayDraw {
-                register_x: (raw & 0x0F00) as u8,
-                register_y: (raw & 0x00F0) as u8,
-                n: (raw & 0x000F) as u8,
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+                n: get_nibble_from_right(0, raw),
             },
             _ => panic!("Unknown instruction: {:#06X}", raw),
         }
