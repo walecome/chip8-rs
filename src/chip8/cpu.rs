@@ -9,8 +9,12 @@ pub struct Memory {
 impl Memory {
     pub fn new(data: Vec<u8>) -> Memory {
         assert!(data.len() <= 4096);
+        let mut memory: Vec<u8> = vec![0; 4096];
+        for (i, byte) in data.iter().enumerate() {
+            memory[i] = *byte;
+        }
         Memory {
-            data,
+            data: memory,
         }
     }
 
