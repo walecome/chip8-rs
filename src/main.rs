@@ -1,6 +1,7 @@
 pub mod chip8;
 
-use chip8::display::Display;
+use chip8::cpu::Cpu;
+use chip8::cpu::Memory;
 
 extern crate sdl2;
 
@@ -9,6 +10,8 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use std::time::Duration;
+
+use std::fs;
 
 struct GridMapper {
     cell_size: u32,
@@ -19,7 +22,7 @@ struct GridMapper {
 
 enum GridPixelType {
     Divider,
-    Cell { x: u32, y: u32 },
+    Cell { vram_x: u8, vram_y: u8 },
 }
 
 impl GridMapper {
@@ -45,19 +48,35 @@ impl GridMapper {
             GridPixelType::Divider
         } else {
             GridPixelType::Cell {
-                x: x / chunk_size,
-                y: y / chunk_size,
+                vram_x: (x / chunk_size) as u8,
+                vram_y: (y / chunk_size) as u8,
             }
         };
     }
 }
 
 fn main() {
+    let rom_data = fs::read("/home/aw/roms/chip8/ibm_logo.ch8").unwrap();
+
+    let mut i = 0;
+
+    let mut cpu = Cpu::new(Memory::new(rom_data));
+
+    loop {
+        let raw_instruction = cpu.fetch();
+        let instruction = cpu.decode(raw_instruction);
+        println!("{:?}", instruction);
+
+        i += 1;
+        if i > 10 {
+            break;
+        }
+    }
+
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
-    let mut display = Display::new();
-    let grid_mapper = GridMapper::new(display.width, display.height, 15);
+    let grid_mapper = GridMapper::new(cpu.vram().width as u32, cpu.vram().height as u32, 15);
     let window = video_subsystem
         .window("rust-sdl2 demo", grid_mapper.width, grid_mapper.height)
         .position_centered()
@@ -87,16 +106,17 @@ fn main() {
             }
         }
         // The rest of the game loop goes here...
+
         for x in 0..grid_mapper.width {
             for y in 0..grid_mapper.height {
                 let color = match grid_mapper.get_type(x, y) {
-                    GridPixelType::Cell {x, y} => {
-                        if display.get(x, y) {
+                    GridPixelType::Cell { vram_x, vram_y } => {
+                        if cpu.vram().get_cell(vram_x, vram_y) {
                             Color::RGB(255, 255, 255)
                         } else {
                             Color::RGB(0, 0, 0)
                         }
-                    },
+                    }
                     GridPixelType::Divider => Color::RGB(50, 50, 50),
                 };
                 canvas.set_draw_color(color);
