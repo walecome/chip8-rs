@@ -61,6 +61,7 @@ pub struct Cpu {
     registers: Vec<u8>,
     index_register: u16,
     vram: VRAM,
+    call_stack: Vec<u16>,
 }
 
 fn get_nibble_from_right(i: u8, value: u16) -> u8 {
@@ -76,6 +77,7 @@ impl Cpu {
             registers: vec![0; 16],
             index_register: 0,
             vram: VRAM::new(),
+            call_stack: vec![],
         };
     }
 
@@ -142,10 +144,11 @@ impl Cpu {
                 self.pc = address;
             },
             Instruction::SubroutineReturn => {
-                todo!();
+                self.pc = self.call_stack.pop().unwrap();
             },
-            Instruction::SubroutineCall(_) => {
-                todo!();
+            Instruction::SubroutineCall(address) => {
+                self.call_stack.push(self.pc);
+                self.pc = address;
             },
             Instruction::SetVX { register, value } => {
                 self.set_register(register, value);
