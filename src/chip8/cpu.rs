@@ -145,6 +145,7 @@ impl Cpu {
                 // TODO: Don't inline display dimensions
                 // Set the X coordinate to the value in VX modulo 64
                 let mut x = self.get_register(register_x) % 64;
+                let start_x = x;
                 // Set the Y coordinate to the value in VY modulo 32
                 let mut y = self.get_register(register_y) % 32;
                 // Set VF to 0
@@ -182,7 +183,7 @@ impl Cpu {
                     }
                     // Increment Y
                     y += 1;
-                    // TODO: Should reset x?
+                    x = start_x;
                 }
             },
         }
