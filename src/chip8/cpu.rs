@@ -1,5 +1,3 @@
-use std::hint::spin_loop;
-
 use crate::chip8::instruction::Instruction;
 
 pub struct Memory {
