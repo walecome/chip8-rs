@@ -5,12 +5,12 @@ pub struct Memory {
 }
 
 impl Memory {
-    pub fn new(data: Vec<u8>) -> Memory {
-        assert!(data.len() <= 4096);
+    pub fn new(rom_data: Vec<u8>) -> Memory {
+        assert!(rom_data.len() <= 4096);
         let mut memory: Vec<u8> = vec![0; 4096];
         let start_address = 512;
         // TODO: Set up fonts in memory
-        for (i, byte) in data.iter().enumerate() {
+        for (i, byte) in rom_data.iter().enumerate() {
             memory[start_address + i] = *byte;
         }
         Memory {
