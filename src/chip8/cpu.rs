@@ -71,7 +71,7 @@ fn get_nibble_from_right(i: u8, value: u16) -> u8 {
 impl Cpu {
     pub fn new(memory: Memory) -> Cpu {
         return Cpu {
-            pc: 0,
+            pc: 512,
             memory,
             registers: vec![0; 16],
             index_register: 0,
