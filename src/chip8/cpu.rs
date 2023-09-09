@@ -46,6 +46,7 @@ impl VRAM {
 
     fn clear(& mut self) {
         self.data.clear();
+        self.data.resize(self.width as usize * self.height as usize, false);
     }
 
 }
