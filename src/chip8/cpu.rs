@@ -253,12 +253,47 @@ impl Cpu {
                     self.do_noop();
                 }
             },
-            Instruction::ArithmeticSet { register_x, register_y } => todo!(),
-            Instruction::ArithmeticOr { register_x, register_y } => todo!(),
-            Instruction::ArithmeticAnd { register_x, register_y } => todo!(),
-            Instruction::ArithmeticXor { register_x, register_y } => todo!(),
-            Instruction::ArithmeticAdd { register_x, register_y } => todo!(),
-            Instruction::ArithmeticSubtract { register_x, register_y } => todo!(),
+            Instruction::ArithmeticSet { register_x, register_y } => {
+                let value_y = self.get_register(register_y);
+                self.set_register(register_x, value_y);
+            },
+            Instruction::ArithmeticOr { register_x, register_y } => {
+                let value_x = self.get_register(register_x);
+                let value_y = self.get_register(register_y);
+                self.set_register(register_x, value_x | value_y);
+            },
+            Instruction::ArithmeticAnd { register_x, register_y } => {
+                let value_x = self.get_register(register_x);
+                let value_y = self.get_register(register_y);
+                self.set_register(register_x, value_x & value_y);
+            },
+            Instruction::ArithmeticXor { register_x, register_y } => {
+                let value_x = self.get_register(register_x);
+                let value_y = self.get_register(register_y);
+                self.set_register(register_x, value_x ^ value_y);
+            },
+            Instruction::ArithmeticAdd { register_x, register_y } => {
+                let value_x = self.get_register(register_x);
+                let value_y = self.get_register(register_y);
+                self.set_register(register_x, value_x.wrapping_add(value_y));
+                let did_overflow = value_x > 0xFF - value_y;
+                let carry = if did_overflow {1} else {0};
+                self.set_register(0x0F, carry);
+            },
+            Instruction::ArithmeticSubtract { register_x, register_y } => {
+                let value_x = self.get_register(register_x);
+                let value_y = self.get_register(register_y);
+                self.set_register(register_x, value_x.wrapping_sub(value_y));
+
+                let carry = if value_x > value_y {
+                    1
+                } else {
+                    0
+                };
+
+                self.set_register(0x0F, carry);
+
+            },
             Instruction::ArithmeticShift { register_x, register_y } => todo!(),
         }
     }
