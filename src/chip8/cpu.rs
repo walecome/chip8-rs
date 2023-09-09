@@ -164,7 +164,7 @@ impl Cpu {
                         if x >= self.vram.width {
                             break;
                         }
-                        let sprite_bit_enabled = bit_flag & sprite_data != 0;
+                        let sprite_bit_enabled = (1 << bit_flag) & sprite_data != 0;
                         // If the current pixel in the sprite row is on and the pixel at coordinates X,Y on the screen is also on...
                         if sprite_bit_enabled && self.vram.get_cell(x, y) {
                             // ... turn off the pixel and set VF to 1
