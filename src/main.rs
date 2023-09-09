@@ -58,20 +58,7 @@ impl GridMapper {
 fn main() {
     let rom_data = fs::read("/home/aw/roms/chip8/ibm_logo.ch8").unwrap();
 
-    let mut i = 0;
-
     let mut cpu = Cpu::new(Memory::new(rom_data));
-
-    loop {
-        let raw_instruction = cpu.fetch();
-        let instruction = cpu.decode(raw_instruction);
-        println!("{:?}", instruction);
-
-        i += 1;
-        if i > 10 {
-            break;
-        }
-    }
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -107,6 +94,13 @@ fn main() {
         }
         // The rest of the game loop goes here...
 
+        // Tick CPU
+        let raw_instruction = cpu.fetch();
+        let instruction = cpu.decode(raw_instruction);
+        println!("{:#06X} -> {:?}", raw_instruction, instruction);
+        cpu.execute(instruction);
+
+        // Draw VRAM
         for x in 0..grid_mapper.width {
             for y in 0..grid_mapper.height {
                 let color = match grid_mapper.get_type(x, y) {
