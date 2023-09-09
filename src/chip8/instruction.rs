@@ -12,5 +12,11 @@ pub enum Instruction {
     NoopImmediateNotEq { register: u8, value: u8 },
     NoopRegisterEq { register_x: u8, register_y: u8 },
     NoopRegisterNotEq { register_x: u8, register_y: u8},
-
+    ArithmeticSet { register_x: u8, register_y: u8 },
+    ArithmeticOr { register_x: u8, register_y: u8 },
+    ArithmeticAnd { register_x: u8, register_y: u8 },
+    ArithmeticXor { register_x: u8, register_y: u8 },
+    ArithmeticAdd { register_x: u8, register_y: u8 },
+    ArithmeticSubtract { register_x: u8, register_y: u8 },
+    ArithmeticShift { register_x: u8, register_y: u8 },
 }

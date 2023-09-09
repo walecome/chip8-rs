@@ -133,6 +133,34 @@ impl Cpu {
                 register_x: get_nibble_from_right(2, raw),
                 register_y: get_nibble_from_right(1, raw),
             },
+            0x8000..=0x8FF0 => Instruction::ArithmeticSet {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x8001..=0x8FF1 => Instruction::ArithmeticOr {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x8002..=0x8FF2 => Instruction::ArithmeticAnd {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x8003..=0x8FF3 => Instruction::ArithmeticXor {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x8004..=0x8FF4 => Instruction::ArithmeticAdd {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x8005..=0x8FF5 => Instruction::ArithmeticSubtract {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x8006..=0x8FF6 => Instruction::ArithmeticShift {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
             _ => panic!("Unknown instruction: {:#06X}", raw),
         }
     }
@@ -225,6 +253,13 @@ impl Cpu {
                     self.do_noop();
                 }
             },
+            Instruction::ArithmeticSet { register_x, register_y } => todo!(),
+            Instruction::ArithmeticOr { register_x, register_y } => todo!(),
+            Instruction::ArithmeticAnd { register_x, register_y } => todo!(),
+            Instruction::ArithmeticXor { register_x, register_y } => todo!(),
+            Instruction::ArithmeticAdd { register_x, register_y } => todo!(),
+            Instruction::ArithmeticSubtract { register_x, register_y } => todo!(),
+            Instruction::ArithmeticShift { register_x, register_y } => todo!(),
         }
     }
 
