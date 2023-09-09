@@ -152,7 +152,7 @@ impl Cpu {
             },
             Instruction::AddVX { register, value } => {
                 let existing_value = self.get_register(register);
-                self.set_register(register, existing_value + value);
+                self.set_register(register, existing_value.wrapping_add(value));
             },
             Instruction::SetI(value) => {
                 self.index_register = value;
