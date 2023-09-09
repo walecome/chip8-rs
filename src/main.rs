@@ -9,6 +9,9 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
+
+use clap::Parser;
+
 use std::time::Duration;
 
 use std::fs;
@@ -55,8 +58,14 @@ impl GridMapper {
     }
 }
 
+#[derive(Parser)]
+struct Args {
+    #[arg(long)]
+    rom: String,
+}
+
 fn main() {
-    let rom_data = fs::read("/home/aw/roms/chip8/ibm_logo.ch8").unwrap();
+    let rom_data = fs::read(Args::parse().rom).unwrap();
 
     let mut cpu = Cpu::new(Memory::new(rom_data));
 
