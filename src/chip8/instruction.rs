@@ -78,4 +78,6 @@ pub enum Instruction {
     SetVXFromDelayTimer(u8),
     SetDelayTimerFromVX(u8),
     SetSoundTimerFromVX(u8),
+    NoopVXDown(u8),
+    NoopVXNotDown(u8),
 }

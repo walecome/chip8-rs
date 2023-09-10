@@ -248,6 +248,14 @@ impl Cpu {
                     _ => panic!("Unknown arithmetic instruction: {:#06X}", raw),
                 }
             },
+            0xE000..=0xEFFF => {
+                let lsb_masked = raw & 0x00FF;
+                match lsb_masked {
+                    0x9E => Instruction::NoopVXDown(get_nibble_from_right(2, raw)),
+                    0xA1 => Instruction::NoopVXNotDown(get_nibble_from_right(2, raw)),
+                    _ => panic!("Unknown E-prefix instruction: {:#06X}", raw),
+                }
+            },
             0xF000..=0xFFFF => {
                 let lsb_masked = raw & 0x00FF;
                 match lsb_masked {
@@ -472,6 +480,18 @@ impl Cpu {
             },
             Instruction::SetSoundTimerFromVX(register_x) => {
                 self.sound_timer = self.get_register(register_x);
+            },
+            Instruction::NoopVXDown(register_x) => {
+                let keycode = Keypad::require_from(self.get_register(register_x) as u32);
+                if self.keypad.is_down(keycode) {
+                    self.do_noop();
+                }
+            },
+            Instruction::NoopVXNotDown(register_x) => {
+                let keycode = Keypad::require_from(self.get_register(register_x) as u32);
+                if !self.keypad.is_down(keycode) {
+                    self.do_noop();
+                }
             },
         }
     }
