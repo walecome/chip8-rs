@@ -100,6 +100,8 @@ pub struct Cpu {
     vram: VRAM,
     call_stack: Vec<u16>,
     use_copy_shift: bool,
+    sound_timer: u8,
+    delay_timer: u8,
 }
 
 fn get_nibble_from_right(i: u8, value: u16) -> u8 {
@@ -139,6 +141,8 @@ impl Cpu {
             vram: VRAM::new(),
             call_stack: vec![],
             use_copy_shift,
+            sound_timer: 0,
+            delay_timer: 0,
         };
     }
 
@@ -448,6 +452,15 @@ impl Cpu {
                     self.set_register(0x0F, 1);
                 }
             },
+        }
+    }
+
+    pub fn tick_timers(& mut self) {
+        if self.sound_timer > 0 {
+            self.sound_timer -= 1;
+        }
+        if self.delay_timer > 0 {
+            self.delay_timer -= 1;
         }
     }
 

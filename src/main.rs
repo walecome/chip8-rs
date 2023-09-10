@@ -12,6 +12,7 @@ use sdl2::pixels::PixelFormatEnum;
 
 use clap::Parser;
 
+use std::time::Duration;
 use std::time::Instant;
 
 use std::fs;
@@ -71,7 +72,16 @@ pub fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
+    let mut timer = Instant::now();
+
+    let sixty_hz_duration = Duration::from_secs(1) / 60;
+
     'running: loop {
+        if timer.elapsed() > sixty_hz_duration {
+            cpu.tick_timers();
+            timer = Instant::now();
+        }
+
         let main_loop_start = Instant::now();
 
         for event in event_pump.poll_iter() {
