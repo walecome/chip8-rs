@@ -83,13 +83,25 @@ pub fn main() -> Result<(), String> {
 
     let sixty_hz_duration = Duration::from_secs(1) / 60;
 
+    let mut print_timer = Instant::now();
+    let print_duration = Duration::from_secs(3);
+
+    let mut frame_times: Vec<Duration> = vec![];
+
     'running: loop {
+        let frame_start = Instant::now();
         if timer.elapsed() > sixty_hz_duration {
             cpu.tick_timers();
             timer = Instant::now();
         }
 
-        let main_loop_start = Instant::now();
+        if print_timer.elapsed() > print_duration {
+            let average_frame_time = (&frame_times).into_iter().sum::<Duration>() / (frame_times.len() as u32);
+            let frames_per_second = Duration::from_secs(1).as_micros() / average_frame_time.as_micros();
+            println!("Average {} FPS (frame time: {:?})", frames_per_second, average_frame_time);
+            print_timer = Instant::now();
+            frame_times.clear();
+        }
 
         for event in event_pump.poll_iter() {
             match event {
@@ -115,19 +127,14 @@ pub fn main() -> Result<(), String> {
         }
 
         // Tick CPU
-        let cpu_start = Instant::now();
         let raw_instruction = cpu.fetch();
         let instruction = cpu.decode(raw_instruction);
-        println!("{:#06X} -> {:?}", raw_instruction, instruction);
         cpu.execute(instruction);
-        let cpu_duration = cpu_start.elapsed();
-        println!("CPU time: {:?}", cpu_duration);
 
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
         // Draw VRAM
-        let draw_start = Instant::now();
         texture.with_lock(None, |buffer: &mut [u8], pitch: usize| {
             for y in 0..cpu.vram().height {
                 for x in 0..cpu.vram().width {
@@ -144,11 +151,7 @@ pub fn main() -> Result<(), String> {
         canvas.copy(&texture, None, None)?;
         canvas.present();
 
-        let draw_duration = draw_start.elapsed();
-        println!("Draw time: {:?}", draw_duration);
-
-        let main_loop_duration = main_loop_start.elapsed();
-        println!("Main loop time: {:?}", main_loop_duration);
+        frame_times.push(frame_start.elapsed());
     }
 
     Ok(())
