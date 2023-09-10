@@ -181,6 +181,7 @@ impl Cpu {
                 let lsb_masked = raw & 0x00FF;
                 match lsb_masked {
                     0x55 => Instruction::Store(get_nibble_from_right(2, raw)),
+                    0x65 => Instruction::Load(get_nibble_from_right(2, raw)),
                     _ => panic!("Unknown F-prefix instruction: {:#06X}", raw),
                 }
             },
@@ -343,6 +344,14 @@ impl Cpu {
                 for i in 0..=inclusive_end_register_x {
                     let value = self.get_register(i);
                     self.memory.set(start_address + (i as u16), value);
+                }
+            },
+            Instruction::Load(inclusive_end_register_x) => {
+                // NOTE: For old CHIP-8 versions, index register should be incremented.
+                let start_address = self.index_register;
+                for i in 0..=inclusive_end_register_x {
+                    let value = self.memory.get(start_address + (i as u16));
+                    self.set_register(i, value);
                 }
             },
         }
