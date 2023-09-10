@@ -24,4 +24,5 @@ pub enum Instruction {
     Store(u8),
     Load(u8),
     BcdConversion(u8),
+    FontCharacter(u8),
 }

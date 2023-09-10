@@ -1,20 +1,48 @@
 use crate::chip8::instruction::Instruction;
 
+const FONTS: &[u8] = &[
+    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+    0x20, 0x60, 0x20, 0x20, 0x70, // 1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+    0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+];
+
 pub struct Memory {
     data: Vec<u8>,
+    font_start_address: u16,
 }
 
 impl Memory {
     pub fn new(rom_data: Vec<u8>) -> Memory {
         assert!(rom_data.len() <= 4096);
         let mut memory: Vec<u8> = vec![0; 4096];
+
+        // Write ROM to memory
         let start_address = 512;
-        // TODO: Set up fonts in memory
         for (i, byte) in rom_data.iter().enumerate() {
             memory[start_address + i] = *byte;
         }
+
+        // Write fonts to memory
+        let font_start = 0x0050;
+        for (i, byte) in FONTS.iter().enumerate() {
+            memory[font_start + i] = *byte;
+        }
         Memory {
             data: memory,
+            font_start_address: font_start as u16,
         }
     }
 
@@ -24,6 +52,11 @@ impl Memory {
 
     fn set(& mut self, address: u16, value: u8) {
         self.data[address as usize] = value;
+    }
+
+    fn get_font_address(&self, character: u8) -> u16 {
+        // Each font is 5 bytes
+        return self.font_start_address + (character as u16) * 5;
     }
 }
 
@@ -206,6 +239,7 @@ impl Cpu {
             0xF000..=0xFFFF => {
                 let lsb_masked = raw & 0x00FF;
                 match lsb_masked {
+                    0x29 => Instruction::FontCharacter(get_nibble_from_right(2, raw)),
                     0x33 => Instruction::BcdConversion(get_nibble_from_right(2, raw)),
                     0x55 => Instruction::Store(get_nibble_from_right(2, raw)),
                     0x65 => Instruction::Load(get_nibble_from_right(2, raw)),
@@ -400,6 +434,11 @@ impl Cpu {
                 for (i, digit) in digits.into_iter().enumerate() {
                     self.memory.set(self.index_register + (i as u16), digit);
                 }
+            },
+            Instruction::FontCharacter(register_x) => {
+                // Only last nibble relevant
+                let character = self.get_register(register_x) & 0x0F;
+                self.index_register = self.memory.get_font_address(character);
             },
         }
     }
