@@ -83,5 +83,6 @@ pub enum Instruction {
     JumpWithOffset {
         register_x: u8,
         address: u16,
-    }
+    },
+    GetKey(u8),
 }

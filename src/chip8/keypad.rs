@@ -1,6 +1,6 @@
 use sdl2::keyboard::Scancode;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Keycode {
     Key0 = 0,
     Key1,

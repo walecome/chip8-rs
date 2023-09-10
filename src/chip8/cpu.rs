@@ -273,6 +273,7 @@ impl Cpu {
                     0x07 => Instruction::SetVXFromDelayTimer(get_nibble_from_right(2, raw)),
                     0x15 => Instruction::SetDelayTimerFromVX(get_nibble_from_right(2, raw)),
                     0x18 => Instruction::SetSoundTimerFromVX(get_nibble_from_right(2, raw)),
+                    0x0A => Instruction::GetKey(get_nibble_from_right(2, raw)),
                     _ => panic!("Unknown F-prefix instruction: {:#06X}", raw),
                 }
             },
@@ -506,6 +507,16 @@ impl Cpu {
                     self.get_register(0x00)
                 };
                 self.pc = address + (register_offset as u16);
+            },
+            Instruction::GetKey(register_x) => {
+                // TODO: Should this be the immediate value for the, or used to get from register?
+                let keycode = Keypad::require_from(register_x as u32);
+                if self.keypad.is_down(keycode.clone()) {
+                    self.set_register(register_x, (keycode as u32) as u8);
+                } else {
+                    self.pc -= 2;
+                }
+
             },
         }
     }
