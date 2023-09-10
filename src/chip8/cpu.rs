@@ -21,6 +21,10 @@ impl Memory {
     pub fn get(&self, address: u16) -> u8 {
         self.data[address as usize]
     }
+
+    fn set(& mut self, address: u16, value: u8) {
+        self.data[address as usize] = value;
+    }
 }
 
 pub struct VRAM {
@@ -167,6 +171,7 @@ impl Cpu {
                 register_x: get_nibble_from_right(2, raw),
                 register_y: get_nibble_from_right(1, raw),
             },
+            0xF055..=0xFF55 => Instruction::Store(get_nibble_from_right(2, raw)),
             _ => panic!("Unknown instruction: {:#06X}", raw),
         }
     }
@@ -319,6 +324,14 @@ impl Cpu {
                 let carry = value_x & 0b1000_0000;
                 self.set_register(register_x, value_x << 1);
                 self.set_register(0x0F, carry);
+            },
+            Instruction::Store(inclusive_end_register_x) => {
+                // NOTE: For old CHIP-8 versions, index register should be incremented.
+                let start_address = self.index_register;
+                for i in 0..=inclusive_end_register_x {
+                    let value = self.get_register(i);
+                    self.memory.set(start_address + (i as u16), value);
+                }
             },
         }
     }
