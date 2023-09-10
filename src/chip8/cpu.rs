@@ -1,5 +1,7 @@
 use crate::chip8::instruction::Instruction;
 
+use super::keypad::Keypad;
+
 const FONTS: &[u8] = &[
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -102,6 +104,7 @@ pub struct Cpu {
     use_copy_shift: bool,
     sound_timer: u8,
     delay_timer: u8,
+    keypad: Keypad,
 }
 
 fn get_nibble_from_right(i: u8, value: u16) -> u8 {
@@ -143,11 +146,16 @@ impl Cpu {
             use_copy_shift,
             sound_timer: 0,
             delay_timer: 0,
+            keypad: Keypad::new(),
         };
     }
 
     pub fn vram(&self) -> &VRAM {
         &self.vram
+    }
+
+    pub fn keypad(&mut self) -> & mut Keypad {
+        & mut self.keypad
     }
 
     pub fn fetch(& mut self) -> u16 {

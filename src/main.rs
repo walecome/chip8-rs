@@ -11,6 +11,7 @@ use sdl2::pixels::Color;
 use sdl2::pixels::PixelFormatEnum;
 
 use clap::Parser;
+use sdl2::sys::KeyCode;
 
 use std::time::Duration;
 use std::time::Instant;
@@ -91,6 +92,18 @@ pub fn main() -> Result<(), String> {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
+                Event::KeyDown {
+                    scancode: Some(scancode),
+                    ..
+                } => {
+                    cpu.keypad().on_down(scancode);
+                },
+                Event::KeyUp {
+                    scancode: Some(scancode),
+                    ..
+                } => {
+                    cpu.keypad().on_up(scancode);
+                },
                 _ => {}
             }
         }
