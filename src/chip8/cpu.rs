@@ -74,6 +74,28 @@ fn get_nibble_from_right(i: u8, value: u16) -> u8 {
     return ((value >> shift) & 0x000F) as u8;
 }
 
+fn get_digits(value: u8) -> Vec<u8> {
+    let mut digits: Vec<u8> = vec![];
+    let mut remaining = value;
+    while remaining > 0 {
+        digits.push(remaining % 10);
+        remaining /= 10;
+    };
+    digits.reverse();
+    return digits;
+}
+#[cfg(test)]
+mod test {
+    use crate::chip8::cpu::get_digits;
+
+    #[test]
+    fn test_get_digits() {
+        assert_eq!(get_digits(156), vec![1, 5, 6]);
+        assert_eq!(get_digits(150), vec![1, 5, 0]);
+        assert_eq!(get_digits(0), vec![]);
+    }
+}
+
 impl Cpu {
     pub fn new(memory: Memory, use_copy_shift: bool) -> Cpu {
         return Cpu {
@@ -180,6 +202,7 @@ impl Cpu {
             0xF000..=0xFFFF => {
                 let lsb_masked = raw & 0x00FF;
                 match lsb_masked {
+                    0x33 => Instruction::BcdConversion(get_nibble_from_right(2, raw)),
                     0x55 => Instruction::Store(get_nibble_from_right(2, raw)),
                     0x65 => Instruction::Load(get_nibble_from_right(2, raw)),
                     _ => panic!("Unknown F-prefix instruction: {:#06X}", raw),
@@ -352,6 +375,14 @@ impl Cpu {
                 for i in 0..=inclusive_end_register_x {
                     let value = self.memory.get(start_address + (i as u16));
                     self.set_register(i, value);
+                }
+            },
+            Instruction::BcdConversion(register_x) => {
+                let value_x = self.get_register(register_x);
+                let digits = get_digits(value_x);
+
+                for (i, digit) in digits.into_iter().enumerate() {
+                    self.memory.set(self.index_register + (i as u16), digit);
                 }
             },
         }

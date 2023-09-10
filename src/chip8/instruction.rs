@@ -22,4 +22,5 @@ pub enum Instruction {
     ArithmeticShiftRight { register_x: u8, register_y: u8 },
     Store(u8),
     Load(u8),
+    BcdConversion(u8),
 }
