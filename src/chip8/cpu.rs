@@ -177,7 +177,13 @@ impl Cpu {
                     _ => panic!("Unknown arithmetic instruction: {:#06X}", raw),
                 }
             },
-            0xF055..=0xFF55 => Instruction::Store(get_nibble_from_right(2, raw)),
+            0xF000..=0xFFFF => {
+                let lsb_masked = raw & 0x00FF;
+                match lsb_masked {
+                    0x55 => Instruction::Store(get_nibble_from_right(2, raw)),
+                    _ => panic!("Unknown F-prefix instruction: {:#06X}", raw),
+                }
+            },
             _ => panic!("Unknown instruction: {:#06X}", raw),
         }
     }
