@@ -79,7 +79,7 @@ pub fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut timer = Instant::now();
+    let mut sixty_hz_timer = Instant::now();
 
     let sixty_hz_duration = Duration::from_secs(1) / 60;
 
@@ -87,13 +87,9 @@ pub fn main() -> Result<(), String> {
     let print_duration = Duration::from_secs(3);
 
     let mut frame_times: Vec<Duration> = vec![];
+    let mut last_frame_end = Instant::now();
 
     'running: loop {
-        let frame_start = Instant::now();
-        if timer.elapsed() > sixty_hz_duration {
-            cpu.tick_timers();
-            timer = Instant::now();
-        }
 
         if print_timer.elapsed() > print_duration {
             let average_frame_time = (&frame_times).into_iter().sum::<Duration>() / (frame_times.len() as u32);
@@ -131,6 +127,14 @@ pub fn main() -> Result<(), String> {
         let instruction = cpu.decode(raw_instruction);
         cpu.execute(instruction);
 
+        if sixty_hz_timer.elapsed() < sixty_hz_duration {
+            continue;
+        }
+
+        // Tick timers
+        cpu.tick_timers();
+        sixty_hz_timer = Instant::now();
+
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
 
@@ -151,7 +155,8 @@ pub fn main() -> Result<(), String> {
         canvas.copy(&texture, None, None)?;
         canvas.present();
 
-        frame_times.push(frame_start.elapsed());
+        frame_times.push(last_frame_end.elapsed());
+        last_frame_end = Instant::now();
     }
 
     Ok(())
