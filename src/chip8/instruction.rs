@@ -25,4 +25,5 @@ pub enum Instruction {
     Load(u8),
     BcdConversion(u8),
     FontCharacter(u8),
+    AddToIndex(u8),
 }

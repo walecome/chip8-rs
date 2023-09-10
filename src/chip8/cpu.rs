@@ -243,6 +243,7 @@ impl Cpu {
                     0x33 => Instruction::BcdConversion(get_nibble_from_right(2, raw)),
                     0x55 => Instruction::Store(get_nibble_from_right(2, raw)),
                     0x65 => Instruction::Load(get_nibble_from_right(2, raw)),
+                    0x1E => Instruction::AddToIndex(get_nibble_from_right(2, raw)),
                     _ => panic!("Unknown F-prefix instruction: {:#06X}", raw),
                 }
             },
@@ -439,6 +440,13 @@ impl Cpu {
                 // Only last nibble relevant
                 let character = self.get_register(register_x) & 0x0F;
                 self.index_register = self.memory.get_font_address(character);
+            },
+            Instruction::AddToIndex(register_x) => {
+                self.index_register += self.get_register(register_x) as u16;
+                // NOTE: Different "overflow" behavior of index register for different interpreters
+                if self.index_register >= 0x1000 {
+                    self.set_register(0x0F, 1);
+                }
             },
         }
     }
