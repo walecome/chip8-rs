@@ -62,12 +62,15 @@ impl GridMapper {
 struct Args {
     #[arg(long)]
     rom: String,
+    #[arg(long)]
+    use_copy_shift: bool,
 }
 
 fn main() {
-    let rom_data = fs::read(Args::parse().rom).unwrap();
+    let args = Args::parse();
+    let rom_data = fs::read(args.rom).unwrap();
 
-    let mut cpu = Cpu::new(Memory::new(rom_data));
+    let mut cpu = Cpu::new(Memory::new(rom_data), args.use_copy_shift);
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();

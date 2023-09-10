@@ -62,6 +62,7 @@ pub struct Cpu {
     index_register: u16,
     vram: VRAM,
     call_stack: Vec<u16>,
+    use_copy_shift: bool,
 }
 
 fn get_nibble_from_right(i: u8, value: u16) -> u8 {
@@ -70,7 +71,7 @@ fn get_nibble_from_right(i: u8, value: u16) -> u8 {
 }
 
 impl Cpu {
-    pub fn new(memory: Memory) -> Cpu {
+    pub fn new(memory: Memory, use_copy_shift: bool) -> Cpu {
         return Cpu {
             pc: 512,
             memory,
@@ -78,6 +79,7 @@ impl Cpu {
             index_register: 0,
             vram: VRAM::new(),
             call_stack: vec![],
+            use_copy_shift,
         };
     }
 
@@ -157,7 +159,11 @@ impl Cpu {
                 register_x: get_nibble_from_right(2, raw),
                 register_y: get_nibble_from_right(1, raw),
             },
-            0x8006..=0x8FF6 => Instruction::ArithmeticShift {
+            0x8006..=0x8FF6 => Instruction::ArithmeticShiftRight {
+                register_x: get_nibble_from_right(2, raw),
+                register_y: get_nibble_from_right(1, raw),
+            },
+            0x800E..=0x8FFE => Instruction::ArithmeticShiftLeft {
                 register_x: get_nibble_from_right(2, raw),
                 register_y: get_nibble_from_right(1, raw),
             },
@@ -294,7 +300,26 @@ impl Cpu {
                 self.set_register(0x0F, carry);
 
             },
-            Instruction::ArithmeticShift { register_x, register_y } => todo!(),
+            Instruction::ArithmeticShiftRight { register_x, register_y } => {
+                if self.use_copy_shift {
+                    let value_y = self.get_register(register_y);
+                    self.set_register(register_x, value_y);
+                }
+                let value_x = self.get_register(register_x);
+                let carry = value_x & 0x01;
+                self.set_register(register_x, value_x >> 1);
+                self.set_register(0x0F, carry);
+            },
+            Instruction::ArithmeticShiftLeft { register_x, register_y } => {
+                if self.use_copy_shift {
+                    let value_y = self.get_register(register_y);
+                    self.set_register(register_x, value_y);
+                }
+                let value_x = self.get_register(register_x);
+                let carry = value_x & 0b1000_0000;
+                self.set_register(register_x, value_x << 1);
+                self.set_register(0x0F, carry);
+            },
         }
     }
 
