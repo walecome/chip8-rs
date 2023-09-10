@@ -102,6 +102,7 @@ pub struct Cpu {
     vram: VRAM,
     call_stack: Vec<u16>,
     use_copy_shift: bool,
+    use_offset_jump_quirk: bool,
     sound_timer: u8,
     delay_timer: u8,
     keypad: Keypad,
@@ -135,7 +136,7 @@ mod test {
 }
 
 impl Cpu {
-    pub fn new(memory: Memory, use_copy_shift: bool) -> Cpu {
+    pub fn new(memory: Memory, use_copy_shift: bool, use_offset_jump_quirk: bool) -> Cpu {
         return Cpu {
             pc: 512,
             memory,
@@ -144,6 +145,7 @@ impl Cpu {
             vram: VRAM::new(),
             call_stack: vec![],
             use_copy_shift,
+            use_offset_jump_quirk,
             sound_timer: 0,
             delay_timer: 0,
             keypad: Keypad::new(),
@@ -247,6 +249,10 @@ impl Cpu {
                     },
                     _ => panic!("Unknown arithmetic instruction: {:#06X}", raw),
                 }
+            },
+            0xB000..=0xBFFF => Instruction::JumpWithOffset {
+                register_x: get_nibble_from_right(2, raw),
+                address: raw & 0x0FFF,
             },
             0xE000..=0xEFFF => {
                 let lsb_masked = raw & 0x00FF;
@@ -492,6 +498,14 @@ impl Cpu {
                 if !self.keypad.is_down(keycode) {
                     self.do_noop();
                 }
+            },
+            Instruction::JumpWithOffset { register_x, address } => {
+                let register_offset = if self.use_offset_jump_quirk {
+                    self.get_register(register_x)
+                } else {
+                    self.get_register(0x00)
+                };
+                self.pc = address + (register_offset as u16);
             },
         }
     }

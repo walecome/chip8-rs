@@ -24,12 +24,18 @@ struct Args {
     rom: String,
     #[arg(long)]
     use_copy_shift: bool,
+    #[arg(long)]
+    use_offset_jump_quirk: bool,
 }
 
 pub fn main() -> Result<(), String> {
     let args = Args::parse();
     let rom_data = fs::read(args.rom).unwrap();
-    let mut cpu = Cpu::new(Memory::new(rom_data), args.use_copy_shift);
+    let mut cpu = Cpu::new(
+        Memory::new(rom_data),
+        args.use_copy_shift,
+        args.use_offset_jump_quirk,
+    );
 
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;

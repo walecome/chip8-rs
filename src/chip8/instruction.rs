@@ -80,4 +80,8 @@ pub enum Instruction {
     SetSoundTimerFromVX(u8),
     NoopVXDown(u8),
     NoopVXNotDown(u8),
+    JumpWithOffset {
+        register_x: u8,
+        address: u16,
+    }
 }
