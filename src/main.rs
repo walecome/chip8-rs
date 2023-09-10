@@ -12,7 +12,7 @@ use sdl2::rect::Point;
 
 use clap::Parser;
 
-use std::time::Duration;
+use std::time::Instant;
 
 use std::fs;
 
@@ -91,6 +91,9 @@ fn main() {
     let mut event_pump = sdl_context.event_pump().unwrap();
     let mut i = 0;
     'running: loop {
+
+        let main_loop_start = Instant::now();
+
         i = (i + 1) % 255;
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
@@ -106,12 +109,17 @@ fn main() {
         }
         // The rest of the game loop goes here...
 
+        let cpu_start = Instant::now();
         // Tick CPU
         let raw_instruction = cpu.fetch();
         let instruction = cpu.decode(raw_instruction);
         println!("{:#06X} -> {:?}", raw_instruction, instruction);
         cpu.execute(instruction);
+        let cpu_duration = cpu_start.elapsed();
+        println!("CPU time: {:?}", cpu_duration);
 
+
+        let draw_start = Instant::now();
         // Draw VRAM
         for x in 0..grid_mapper.width {
             for y in 0..grid_mapper.height {
@@ -129,8 +137,13 @@ fn main() {
                 canvas.draw_point(Point::new(x as i32, y as i32)).unwrap();
             }
         }
-
         canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+
+        let draw_duration = draw_start.elapsed();
+        println!("Draw time: {:?}", draw_duration);
+
+
+        let main_loop_duration = main_loop_start.elapsed();
+        println!("Main loop time: {:?}", main_loop_duration);
     }
 }
