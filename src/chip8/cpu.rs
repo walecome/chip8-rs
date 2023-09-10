@@ -139,37 +139,43 @@ impl Cpu {
                 register_x: get_nibble_from_right(2, raw),
                 register_y: get_nibble_from_right(1, raw),
             },
-            0x8000..=0x8FF0 => Instruction::ArithmeticSet {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
-            },
-            0x8001..=0x8FF1 => Instruction::ArithmeticOr {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
-            },
-            0x8002..=0x8FF2 => Instruction::ArithmeticAnd {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
-            },
-            0x8003..=0x8FF3 => Instruction::ArithmeticXor {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
-            },
-            0x8004..=0x8FF4 => Instruction::ArithmeticAdd {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
-            },
-            0x8005..=0x8FF5 => Instruction::ArithmeticSubtract {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
-            },
-            0x8006..=0x8FF6 => Instruction::ArithmeticShiftRight {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
-            },
-            0x800E..=0x8FFE => Instruction::ArithmeticShiftLeft {
-                register_x: get_nibble_from_right(2, raw),
-                register_y: get_nibble_from_right(1, raw),
+            0x0800..=0x8FFF => {
+                let masked = get_nibble_from_right(0, raw);
+                match masked {
+                    0x00 => Instruction::ArithmeticSet {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x01 => Instruction::ArithmeticOr {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x02 => Instruction::ArithmeticAnd {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x03 => Instruction::ArithmeticXor {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x04 => Instruction::ArithmeticAdd {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x05 => Instruction::ArithmeticSubtract {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x06 => Instruction::ArithmeticShiftRight {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x0E => Instruction::ArithmeticShiftLeft {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    _ => panic!("Unknown arithmetic instruction: {:#06X}", raw),
+                }
             },
             0xF055..=0xFF55 => Instruction::Store(get_nibble_from_right(2, raw)),
             _ => panic!("Unknown instruction: {:#06X}", raw),
