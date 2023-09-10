@@ -407,7 +407,7 @@ impl Cpu {
                     self.set_register(register_x, value_y);
                 }
                 let value_x = self.get_register(register_x);
-                let carry = value_x & 0b1000_0000;
+                let carry = if value_x & 0b1000_0000 != 0 { 1 } else { 0 };
                 self.set_register(register_x, value_x << 1);
                 self.set_register(0x0F, carry);
             },
