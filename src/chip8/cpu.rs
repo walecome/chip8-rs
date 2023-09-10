@@ -184,7 +184,11 @@ impl Cpu {
                         register_x: get_nibble_from_right(2, raw),
                         register_y: get_nibble_from_right(1, raw),
                     },
-                    0x05 => Instruction::ArithmeticSubtract {
+                    0x05 => Instruction::ArithmeticSubtractXY {
+                        register_x: get_nibble_from_right(2, raw),
+                        register_y: get_nibble_from_right(1, raw),
+                    },
+                    0x07 => Instruction::ArithmeticSubtractYX {
                         register_x: get_nibble_from_right(2, raw),
                         register_y: get_nibble_from_right(1, raw),
                     },
@@ -327,7 +331,7 @@ impl Cpu {
                 let carry = if did_overflow {1} else {0};
                 self.set_register(0x0F, carry);
             },
-            Instruction::ArithmeticSubtract { register_x, register_y } => {
+            Instruction::ArithmeticSubtractXY { register_x, register_y } => {
                 let value_x = self.get_register(register_x);
                 let value_y = self.get_register(register_y);
                 self.set_register(register_x, value_x.wrapping_sub(value_y));
@@ -339,7 +343,19 @@ impl Cpu {
                 };
 
                 self.set_register(0x0F, carry);
+            },
+            Instruction::ArithmeticSubtractYX { register_x, register_y } => {
+                let value_x = self.get_register(register_x);
+                let value_y = self.get_register(register_y);
+                self.set_register(register_x, value_y.wrapping_sub(value_x));
 
+                let carry = if value_y > value_x {
+                    1
+                } else {
+                    0
+                };
+
+                self.set_register(0x0F, carry);
             },
             Instruction::ArithmeticShiftRight { register_x, register_y } => {
                 if self.use_copy_shift {
