@@ -248,6 +248,9 @@ impl Cpu {
                     0x55 => Instruction::Store(get_nibble_from_right(2, raw)),
                     0x65 => Instruction::Load(get_nibble_from_right(2, raw)),
                     0x1E => Instruction::AddToIndex(get_nibble_from_right(2, raw)),
+                    0x07 => Instruction::SetVXFromDelayTimer(get_nibble_from_right(2, raw)),
+                    0x15 => Instruction::SetDelayTimerFromVX(get_nibble_from_right(2, raw)),
+                    0x18 => Instruction::SetSoundTimerFromVX(get_nibble_from_right(2, raw)),
                     _ => panic!("Unknown F-prefix instruction: {:#06X}", raw),
                 }
             },
@@ -451,6 +454,16 @@ impl Cpu {
                 if self.index_register >= 0x1000 {
                     self.set_register(0x0F, 1);
                 }
+            },
+            Instruction::SetVXFromDelayTimer(register_x) => {
+                self.set_register(register_x, self.delay_timer);
+
+            },
+            Instruction::SetDelayTimerFromVX(register_x) => {
+                self.delay_timer = self.get_register(register_x);
+            },
+            Instruction::SetSoundTimerFromVX(register_x) => {
+                self.sound_timer = self.get_register(register_x);
             },
         }
     }
