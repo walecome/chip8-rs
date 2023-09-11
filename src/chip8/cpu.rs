@@ -1,6 +1,7 @@
 use crate::chip8::instruction::Instruction;
 
 use super::keypad::Keypad;
+use rand::prelude::*;
 
 const FONTS: &[u8] = &[
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -253,6 +254,10 @@ impl Cpu {
             0xB000..=0xBFFF => Instruction::JumpWithOffset {
                 register_x: get_nibble_from_right(2, raw),
                 address: raw & 0x0FFF,
+            },
+            0xC000..=0xCFFF => Instruction::Random {
+                register_x: get_nibble_from_right(2, raw),
+                mask: (raw & 0x00FF) as u8,
             },
             0xE000..=0xEFFF => {
                 let lsb_masked = raw & 0x00FF;
@@ -517,6 +522,10 @@ impl Cpu {
                     self.pc -= 2;
                 }
 
+            },
+            Instruction::Random { register_x, mask } => {
+                let random_number = rand::random::<u8>();
+                self.set_register(register_x, random_number & mask);
             },
         }
     }

@@ -85,4 +85,8 @@ pub enum Instruction {
         address: u16,
     },
     GetKey(u8),
+    Random {
+        register_x: u8,
+        mask: u8,
+    }
 }
