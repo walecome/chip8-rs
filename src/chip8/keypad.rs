@@ -53,6 +53,15 @@ impl Keypad {
         }
     }
 
+    pub fn get_first_pressed_key(&self) -> Option<Keycode> {
+        for (i, is_down) in (&self.down_key_map).into_iter().enumerate() {
+            if *is_down {
+                return Some(Keypad::require_from(i as u32));
+            }
+        }
+        return None;
+    }
+
     pub fn is_down(&self, keycode: Keycode) -> bool {
         return self.down_key_map[keycode as usize];
     }

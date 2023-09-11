@@ -514,12 +514,14 @@ impl Cpu {
                 self.pc = address + (register_offset as u16);
             },
             Instruction::GetKey(register_x) => {
-                // TODO: Should this be the immediate value for the, or used to get from register?
                 let keycode = Keypad::require_from(register_x as u32);
-                if self.keypad.is_down(keycode.clone()) {
-                    self.set_register(register_x, (keycode as u32) as u8);
-                } else {
-                    self.pc -= 2;
+                match self.keypad.get_first_pressed_key() {
+                    Some(keycode) => {
+                        self.set_register(register_x, (keycode as u32) as u8);
+                    },
+                    None => {
+                        self.pc -= 2;
+                    }
                 }
 
             },
