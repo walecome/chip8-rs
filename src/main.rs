@@ -168,15 +168,24 @@ pub fn main() -> Result<(), String> {
     let mut last_cpu_tick = Instant::now();
 
     'running: loop {
-
         if print_timer.elapsed() > print_duration {
-            let average_frame_time = (&frame_times).into_iter().sum::<Duration>() / (frame_times.len() as u32);
-            let frames_per_second = Duration::from_secs(1).as_micros() / average_frame_time.as_micros();
-            println!("Average {} FPS (frame time: {:?})", frames_per_second, average_frame_time);
+            let average_frame_time =
+                (&frame_times).into_iter().sum::<Duration>() / (frame_times.len() as u32);
+            let frames_per_second =
+                Duration::from_secs(1).as_micros() / average_frame_time.as_micros();
+            println!(
+                "Average {} FPS (frame time: {:?})",
+                frames_per_second, average_frame_time
+            );
 
-            let average_cpu_tick_time = (&cpu_tick_times).into_iter().sum::<Duration>() / (cpu_tick_times.len() as u32);
-            let cpu_ticks_per_second = Duration::from_secs(1).as_micros() / average_cpu_tick_time.as_micros();
-            println!("Average CPU ticks per second {} (tick time: {:?})", cpu_ticks_per_second, average_cpu_tick_time);
+            let average_cpu_tick_time =
+                (&cpu_tick_times).into_iter().sum::<Duration>() / (cpu_tick_times.len() as u32);
+            let cpu_ticks_per_second =
+                Duration::from_secs(1).as_micros() / average_cpu_tick_time.as_micros();
+            println!(
+                "Average CPU ticks per second {} (tick time: {:?})",
+                cpu_ticks_per_second, average_cpu_tick_time
+            );
 
             print_timer = Instant::now();
             frame_times.clear();
@@ -195,13 +204,13 @@ pub fn main() -> Result<(), String> {
                     ..
                 } => {
                     cpu.keypad().on_down(scancode);
-                },
+                }
                 Event::KeyUp {
                     scancode: Some(scancode),
                     ..
                 } => {
                     cpu.keypad().on_up(scancode);
-                },
+                }
                 _ => {}
             }
         }
