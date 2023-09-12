@@ -513,7 +513,6 @@ impl Cpu {
                 self.pc = address + (register_offset as u16);
             },
             Instruction::GetKey(register_x) => {
-                let keycode = Keypad::require_from(register_x as u32);
                 match self.keypad.get_first_pressed_key() {
                     Some(keycode) => {
                         self.set_register(register_x, (keycode as u32) as u8);
