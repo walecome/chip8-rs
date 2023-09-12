@@ -111,7 +111,7 @@ pub fn main() -> Result<(), String> {
     let mut beeper = Beeper::new(sdl_context.audio().unwrap());
 
     let window = video_subsystem
-        .window("Chip-8 emulator", 1600, 800)
+        .window("Chip-8 emulator", 1200, 600)
         .position_centered()
         .opengl()
         .build()
