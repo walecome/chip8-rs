@@ -1,7 +1,6 @@
 use crate::chip8::instruction::Instruction;
 
 use super::keypad::Keypad;
-use rand::prelude::*;
 
 const FONTS: &[u8] = &[
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0

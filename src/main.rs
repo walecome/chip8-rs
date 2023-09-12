@@ -13,7 +13,6 @@ use sdl2::pixels::PixelFormatEnum;
 use sdl2::AudioSubsystem;
 
 use clap::Parser;
-use sdl2::sys::KeyCode;
 
 use std::time::Duration;
 use std::time::Instant;
