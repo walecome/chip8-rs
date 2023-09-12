@@ -94,6 +94,8 @@ struct Args {
     use_copy_shift: bool,
     #[arg(long)]
     use_offset_jump_quirk: bool,
+    #[arg(long, default_value_t = 700)]
+    instructions_per_second: u32,
 }
 
 pub fn main() -> Result<(), String> {
@@ -158,8 +160,7 @@ pub fn main() -> Result<(), String> {
     let mut frame_times: Vec<Duration> = vec![];
     let mut last_frame_end = Instant::now();
 
-    // TODO: Should we make this configurable?
-    let instructions_per_second = 700;
+    let instructions_per_second = args.instructions_per_second;
     let cpu_tick_duration = Duration::from_secs(1) / instructions_per_second;
     let mut cpu_timer = Instant::now();
 
