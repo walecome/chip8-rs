@@ -5,7 +5,7 @@
 ``` sh
 git clone git@github.com:walecome/chip8-rs.git
 cd chip8-rs
-cargo run -- rom <path to ROM file>
+cargo run -- --rom <path to ROM file>
 ```
 
 ## Usage
