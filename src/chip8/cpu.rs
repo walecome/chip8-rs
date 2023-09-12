@@ -541,6 +541,10 @@ impl Cpu {
         }
     }
 
+    pub fn should_play_sound(&self) -> bool {
+        return self.sound_timer > 0;
+    }
+
     fn set_register(& mut self, register: u8, value: u8) {
         self.registers[register as usize] = value;
     }
